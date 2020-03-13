@@ -56,7 +56,7 @@ export default class Store {
   }
 
   commit(mutationKey, payload) {
-    if (typeof self.mutations[mutationKey] !== 'function') {
+    if (typeof this.mutations[mutationKey] !== 'function') {
       console.log(`Mutation "${mutationKey}" doesn't exist`)
       return false
     }
