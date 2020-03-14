@@ -1,6 +1,6 @@
-import Store from './store'
+import Store from './store.js'
 
-export default Store({
+export default new Store({
   actions: [],
   mutations: [],
   state: {
