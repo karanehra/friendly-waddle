@@ -1,4 +1,5 @@
-import Store from './store'
+import Store from './store/store'
+
 export default class Component {
   constructor(attrs = {}) {
     this.render = this.render || function() {}

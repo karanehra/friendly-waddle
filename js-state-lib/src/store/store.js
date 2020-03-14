@@ -1,4 +1,4 @@
-import PubSubHandler from './pubsub'
+import PubSubHandler from '../pubsub'
 
 export default class Store {
   constructor(params) {
