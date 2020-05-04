@@ -1,10 +1,10 @@
-const gridSize = 30;
-const tileSize = 15;
+const gridSize = 70;
+const tileSize = 10;
 var svgns = "http://www.w3.org/2000/svg";
 
 let xOffset = 0;
 let yOffset = 0;
-document.addEventListener("keyup", (event) => {
+document.addEventListener("keydown", (event) => {
   event.preventDefault();
   switch (event.key) {
     case "ArrowLeft":
@@ -44,6 +44,29 @@ const refreshTiles = () => {
         ) *
           1000000) &
         255;
+      let a2 =
+        (Math.sin(
+          (Math.floor((i + xOffset) / 3) * 30 * 0.1 +
+            Math.floor((j + yOffset) / 3) * 43 * 0.1) *
+            437057.545323
+        ) *
+          1000000) &
+        255;
+
+      let a3 =
+        (Math.sin(
+          (Math.floor((i + xOffset) / 7) * 30 * 0.1 +
+            Math.floor((j + yOffset) / 7) * 43 * 0.1) *
+            437057.545323
+        ) *
+          1000000) &
+        255;
+      a = (a + a2 + a3) / 3;
+      if (a > 170) {
+        a = 255;
+      } else {
+        a = 0;
+      }
       newTile.style.fill = `rgba(${a},${a},${a})`;
       svg.appendChild(newTile);
     }
