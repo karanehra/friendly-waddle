@@ -1,4 +1,4 @@
-const gridSize = 70;
+const gridSize = 100;
 const tileSize = 10;
 var svgns = "http://www.w3.org/2000/svg";
 
@@ -28,47 +28,44 @@ document.addEventListener("keydown", (event) => {
   refreshTiles();
 });
 
+const noise = (x, y, s = 1) => {
+  return (
+    (Math.sin(
+      (Math.floor(x / s) * 112.01716 + Math.floor(y / s) * 718.233) *
+        437057.545323
+    ) *
+      1000000) &
+    255
+  );
+};
+
 const refreshTiles = () => {
-  let svg = document.getElementById("svg");
-  svg.innerHTML = "";
+  let canvas = document.getElementById("cvs");
+  let ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   for (let i = 0; i < gridSize; i++) {
     for (let j = 0; j < gridSize; j++) {
-      let newTile = document.createElementNS(svgns, "rect");
-      newTile.setAttribute("x", `${i * tileSize}`);
-      newTile.setAttribute("y", `${j * tileSize}`);
-      newTile.setAttribute("width", tileSize);
-      newTile.setAttribute("height", tileSize);
-      let a =
-        (Math.sin(
-          ((i + xOffset) * 30 * 0.1 + (j + yOffset) * 43 * 0.1) * 437057.545323
-        ) *
-          1000000) &
-        255;
-      let a2 =
-        (Math.sin(
-          (Math.floor((i + xOffset) / 3) * 30 * 0.1 +
-            Math.floor((j + yOffset) / 3) * 43 * 0.1) *
-            437057.545323
-        ) *
-          1000000) &
-        255;
+      let values = [];
+      values.push(noise(i + xOffset, j + yOffset));
+      values.push(noise(i + xOffset, j + yOffset, 5));
+      values.push(noise(i + xOffset, j + yOffset, 10));
+      values.push(noise(i + xOffset, j + yOffset, 15));
+      values.push(noise(i + xOffset + 1, j + yOffset + 44, 20));
+      values.push(noise(i + xOffset + 3, j + yOffset + 4, 50));
 
-      let a3 =
-        (Math.sin(
-          (Math.floor((i + xOffset) / 7) * 30 * 0.1 +
-            Math.floor((j + yOffset) / 7) * 43 * 0.1) *
-            437057.545323
-        ) *
-          1000000) &
-        255;
-      a = (a + a2 + a3) / 3;
-      if (a > 170) {
+      a = values.reduce((acc, curr) => acc + curr, 0);
+      a = a / values.length;
+      if (a > 150) {
         a = 255;
       } else {
         a = 0;
       }
-      newTile.style.fill = `rgba(${a},${a},${a})`;
-      svg.appendChild(newTile);
+      ctx.beginPath();
+      ctx.rect(`${i * tileSize}`, `${j * tileSize}`, tileSize, tileSize);
+      ctx.fillStyle = `rgba(${a},${a},${a})`;
+      ctx.fill();
     }
   }
 };
