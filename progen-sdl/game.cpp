@@ -2,11 +2,8 @@
 
 #include <string>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 SDL_Window *gameWindow;
 SDL_Renderer *globalRenderer;
-Character mainCharacter;
-TextureHelper characterSpriteSheet = NULL;
 SDL_Rect forwardSprites[4];
 bool setupSprites();
 
@@ -40,24 +37,6 @@ bool initialize()
       {
         printf("Renderer Creation failed... %s \n", SDL_GetError());
       }
-      else
-      {
-        int imageFlags = IMG_INIT_PNG;
-        if (!(IMG_Init(imageFlags) & imageFlags))
-        {
-          printf("SDL_image could not initialize! SDL_image Error: %s\n",
-                 IMG_GetError());
-        }
-        else
-        {
-          mainCharacter = Character(globalRenderer);
-
-          if (setupSprites())
-          {
-            success = true;
-          }
-        }
-      }
     }
   }
   return success;
@@ -65,6 +44,27 @@ bool initialize()
 
 int main(int argc, char *args[])
 {
-  printf("Hello worls");
-  return 0;
+  int currentSprite = 0;
+  if (!initialize())
+  {
+    exit(2);
+  }
+  else
+  {
+
+    bool quitEventLoop = false;
+    SDL_Event event;
+    while (!quitEventLoop)
+    {
+      while (SDL_PollEvent(&event) != 0)
+      {
+        if (event.type == SDL_QUIT)
+        {
+          quitEventLoop = true;
+        }
+      }
+    }
+
+    return 0;
+  }
 }
