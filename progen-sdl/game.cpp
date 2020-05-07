@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string>
 #include <cmath>
+#include <map>
+
+std::map<std::string, int> valueSet;
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 600;
@@ -72,7 +75,18 @@ void drawRects()
   {
     for (int j = 0; j < SCREEN_HEIGHT / TILE_SIZE; j++)
     {
-      int a = noise(i + OFFSET_X, j + OFFSET_Y);
+      int a;
+
+      std::string s = std::to_string(i) + "-" + std::to_string(j);
+      if (valueSet.find(s) == valueSet.end())
+      {
+        a = noise(i + OFFSET_X, j + OFFSET_Y);
+        valueSet[s] = a;
+      }
+      else
+      {
+        a = valueSet[s];
+      }
 
       SDL_Rect fillRect = {i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE};
       SDL_SetRenderDrawColor(gRenderer, a, a, a, 255);
@@ -89,6 +103,7 @@ int main(int argc, char *args[])
   }
   else
   {
+    printf("nitialize!\n");
     drawRects();
     bool quit = false;
 
