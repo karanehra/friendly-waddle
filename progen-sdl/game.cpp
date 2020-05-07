@@ -1,70 +1,104 @@
-#include <stdio.h>
-
-#include <string>
 #include <SDL2/SDL.h>
-SDL_Window *gameWindow;
-SDL_Renderer *globalRenderer;
-SDL_Rect forwardSprites[4];
-bool setupSprites();
+#include <SDL2/SDL_image.h>
+#include <stdio.h>
+#include <string>
+#include <cmath>
 
-bool initialize()
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = 600;
+const int TILE_SIZE = 10;
+
+bool init();
+void close();
+SDL_Window *gWindow = NULL;
+SDL_Renderer *gRenderer = NULL;
+
+bool init()
 {
-  printf("Initializing... \n");
-  bool success = false;
+  bool success = true;
+
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
   {
-    printf("SDL Initializing Failed... %s \n", SDL_GetError());
+    printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+    success = false;
   }
   else
   {
-    printf("Creating window");
-    gameWindow = SDL_CreateWindow("Jumper", SDL_WINDOWPOS_CENTERED,
-                                  SDL_WINDOWPOS_CENTERED, 300,
-                                  300, SDL_WINDOW_SHOWN);
-
-    if (gameWindow == NULL)
+    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
     {
-      printf("Window creation failed... %s \n", SDL_GetError());
+      printf("Warning: Linear texture filtering not enabled!");
+    }
+
+    gWindow = SDL_CreateWindow("Procedural Generation", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (gWindow == NULL)
+    {
+      printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+      success = false;
     }
     else
     {
-      printf("Creating Renderer");
-      globalRenderer = SDL_CreateRenderer(
-          gameWindow,
-          -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-      if (globalRenderer == NULL)
+      gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+      if (gRenderer == NULL)
       {
-        printf("Renderer Creation failed... %s \n", SDL_GetError());
+        printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+        success = false;
       }
     }
   }
+
   return success;
+}
+
+void close()
+{
+  SDL_DestroyRenderer(gRenderer);
+  SDL_DestroyWindow(gWindow);
+  gWindow = NULL;
+  gRenderer = NULL;
+  IMG_Quit();
+  SDL_Quit();
+}
+
+void drawRects()
+{
+  for (int i = 0; i < SCREEN_WIDTH / TILE_SIZE; i++)
+  {
+    for (int j = 0; j < SCREEN_HEIGHT / TILE_SIZE; j++)
+    {
+      SDL_Rect fillRect = {i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+      SDL_SetRenderDrawColor(gRenderer, i, j, i + j, 255);
+      SDL_RenderFillRect(gRenderer, &fillRect);
+    }
+  }
 }
 
 int main(int argc, char *args[])
 {
-  int currentSprite = 0;
-  if (!initialize())
+  if (!init())
   {
-    exit(2);
+    printf("Failed to initialize!\n");
   }
   else
   {
+    drawRects();
+    bool quit = false;
 
-    bool quitEventLoop = false;
-    SDL_Event event;
-    while (!quitEventLoop)
+    SDL_Event e;
+
+    while (!quit)
     {
-      while (SDL_PollEvent(&event) != 0)
+      while (SDL_PollEvent(&e) != 0)
       {
-        if (event.type == SDL_QUIT)
+        if (e.type == SDL_QUIT)
         {
-          quitEventLoop = true;
+          quit = true;
         }
       }
+      SDL_RenderPresent(gRenderer);
     }
-
-    return 0;
   }
+
+  close();
+
+  return 0;
 }

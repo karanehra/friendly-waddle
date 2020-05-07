@@ -1,2 +1,2 @@
 game:
-	g++ game.cpp -o play -I include -L lib -l SDL2-2.0.0
+		g++ *.cpp -o game -I/Library/Frameworks/SDL2.framework/Headers -I/Library/Frameworks/SDL2_image.framework/Headers -F/Library/Frameworks -framework SDL2 -framework SDL2_image
