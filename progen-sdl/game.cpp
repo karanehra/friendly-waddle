@@ -7,6 +7,8 @@
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 600;
 const int TILE_SIZE = 10;
+int OFFSET_Y = 0;
+int OFFSET_X = 0;
 
 bool init();
 void close();
@@ -59,14 +61,21 @@ void close()
   SDL_Quit();
 }
 
+int noise(int x, int y, int s = 1)
+{
+  return int(sin((x * 112.33 + y * 718.233) * 437057.545323) * 10000) & 255;
+}
+
 void drawRects()
 {
   for (int i = 0; i < SCREEN_WIDTH / TILE_SIZE; i++)
   {
     for (int j = 0; j < SCREEN_HEIGHT / TILE_SIZE; j++)
     {
+      int a = noise(i + OFFSET_X, j + OFFSET_Y);
+
       SDL_Rect fillRect = {i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE};
-      SDL_SetRenderDrawColor(gRenderer, i, j, i + j, 255);
+      SDL_SetRenderDrawColor(gRenderer, a, a, a, 255);
       SDL_RenderFillRect(gRenderer, &fillRect);
     }
   }
@@ -92,6 +101,28 @@ int main(int argc, char *args[])
         if (e.type == SDL_QUIT)
         {
           quit = true;
+        }
+        if (e.type == SDL_KEYDOWN)
+        {
+          switch (e.key.keysym.sym)
+          {
+          case SDLK_UP:
+            OFFSET_Y--;
+            drawRects();
+            break;
+          case SDLK_DOWN:
+            OFFSET_Y++;
+            drawRects();
+            break;
+          case SDLK_RIGHT:
+            OFFSET_X++;
+            drawRects();
+            break;
+          case SDLK_LEFT:
+            OFFSET_X--;
+            drawRects();
+            break;
+          }
         }
       }
       SDL_RenderPresent(gRenderer);
