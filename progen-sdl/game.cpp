@@ -8,7 +8,7 @@
 #define umap std::unordered_map
 
 umap<std::string, int> valueSet;
-umap<std::string, umap<std::string, int>> vectorSet;
+umap<std::string, umap<std::string, float> > vectorSet;
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 600;
@@ -69,7 +69,7 @@ void close()
 
 int noise(int x, int y, int s = 1)
 {
-  return int(sin((x * 112.33 + y * 718.233) * 437057.545323) * 10000) & 255;
+  return int(sin((floor(x / s) * 112.33 + floor(y / s) * 718.233) * 437057.545323) * 10000) & 255;
 }
 
 void initVectors()
@@ -78,8 +78,17 @@ void initVectors()
   {
     for (int j = 0; j < SCREEN_WIDTH / TILE_SIZE + 1; j++)
     {
+      std::string vectorDef = std::to_string(i) + "-" + std::to_string(j);
+      umap<std::string, float> vector;
+      vector["x"] = float(rand() % 100) / 100.0f;
+      vector["y"] = float(rand() % 100) / 100.0f;
+      vectorSet[vectorDef] = vector;
     }
   }
+}
+
+int perlin(int i, int j)
+{
 }
 
 void drawRects()
@@ -95,11 +104,22 @@ void drawRects()
       if (valueSet.find(s) == valueSet.end())
       {
         a = noise(i + OFFSET_X, j + OFFSET_Y);
+        int a3 = noise(i + OFFSET_X, j + OFFSET_Y, 2);
+        int a4 = noise(i + OFFSET_X, j + OFFSET_Y, 5);
+        int a5 = noise(i + OFFSET_X, j + OFFSET_Y, 7);
+        int a2 = noise(i + OFFSET_X, j + OFFSET_Y, 13);
+        a = (a+a2+a3+a4+a5)/5;
         valueSet[s] = a;
       }
       else
       {
         a = valueSet[s];
+      }
+
+      if(a > 170){
+        a=255;
+      } else {
+        a=0;
       }
 
       SDL_Rect fillRect = {i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE};
