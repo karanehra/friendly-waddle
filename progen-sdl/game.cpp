@@ -8,7 +8,7 @@
 #define umap std::unordered_map
 
 umap<std::string, int> valueSet;
-umap<std::string, umap<std::string, float> > vectorSet;
+umap<std::string, umap<std::string, float>> vectorSet;
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 600;
@@ -89,6 +89,17 @@ void initVectors()
 
 int perlin(int i, int j)
 {
+  std::string vectorDef1 = std::to_string(i) + "-" + std::to_string(j);
+  std::string vectorDef2 = std::to_string(i + 1) + "-" + std::to_string(j);
+  std::string vectorDef3 = std::to_string(i) + "-" + std::to_string(j + 1);
+  std::string vectorDef4 = std::to_string(i + 1) + "-" + std::to_string(j + 1);
+  umap<std::string, float> vector1 = vectorSet[vectorDef1];
+  umap<std::string, float> vector2 = vectorSet[vectorDef2];
+  umap<std::string, float> vector3 = vectorSet[vectorDef3];
+  umap<std::string, float> vector4 = vectorSet[vectorDef4];
+  float dot12 = vector1["x"] * vector2["x"] + vector1["y"] * vector2["y"];
+  float dot34 = vector3["x"] * vector4["x"] + vector3["y"] * vector4["y"];
+  return floor(((dot12 + dot34) / 2) * 255.0f);
 }
 
 void drawRects()
@@ -103,23 +114,17 @@ void drawRects()
       std::string s = std::to_string(i + OFFSET_X) + "-" + std::to_string(j + OFFSET_Y);
       if (valueSet.find(s) == valueSet.end())
       {
-        a = noise(i + OFFSET_X, j + OFFSET_Y);
-        int a3 = noise(i + OFFSET_X, j + OFFSET_Y, 2);
-        int a4 = noise(i + OFFSET_X, j + OFFSET_Y, 5);
-        int a5 = noise(i + OFFSET_X, j + OFFSET_Y, 7);
-        int a2 = noise(i + OFFSET_X, j + OFFSET_Y, 13);
-        a = (a+a2+a3+a4+a5)/5;
+        a = perlin(i + OFFSET_X, j + OFFSET_Y);
+        // int a3 = noise(i + OFFSET_X, j + OFFSET_Y, 2);
+        // int a4 = noise(i + OFFSET_X, j + OFFSET_Y, 5);
+        // int a5 = noise(i + OFFSET_X, j + OFFSET_Y, 7);
+        // int a2 = noise(i + OFFSET_X, j + OFFSET_Y, 13);
+        // a = (a + a2 + a3 + a4 + a5) / 5;
         valueSet[s] = a;
       }
       else
       {
         a = valueSet[s];
-      }
-
-      if(a > 170){
-        a=255;
-      } else {
-        a=0;
       }
 
       SDL_Rect fillRect = {i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE};
@@ -131,6 +136,7 @@ void drawRects()
 
 int main(int argc, char *args[])
 {
+  initVectors();
   if (!init())
   {
     printf("Failed to initialize!\n");
