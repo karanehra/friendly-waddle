@@ -3,9 +3,12 @@
 #include <stdio.h>
 #include <string>
 #include <cmath>
-#include <map>
+#include <unordered_map>
 
-std::map<std::string, int> valueSet;
+#define umap std::unordered_map
+
+umap<std::string, int> valueSet;
+umap<std::string, umap<std::string, int>> vectorSet;
 
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 600;
@@ -69,15 +72,26 @@ int noise(int x, int y, int s = 1)
   return int(sin((x * 112.33 + y * 718.233) * 437057.545323) * 10000) & 255;
 }
 
+void initVectors()
+{
+  for (int i = 0; i < SCREEN_WIDTH / TILE_SIZE + 1; i++)
+  {
+    for (int j = 0; j < SCREEN_WIDTH / TILE_SIZE + 1; j++)
+    {
+    }
+  }
+}
+
 void drawRects()
 {
+  SDL_Log("%zu", valueSet.size());
   for (int i = 0; i < SCREEN_WIDTH / TILE_SIZE; i++)
   {
     for (int j = 0; j < SCREEN_HEIGHT / TILE_SIZE; j++)
     {
       int a;
 
-      std::string s = std::to_string(i) + "-" + std::to_string(j);
+      std::string s = std::to_string(i + OFFSET_X) + "-" + std::to_string(j + OFFSET_Y);
       if (valueSet.find(s) == valueSet.end())
       {
         a = noise(i + OFFSET_X, j + OFFSET_Y);
@@ -103,7 +117,6 @@ int main(int argc, char *args[])
   }
   else
   {
-    printf("nitialize!\n");
     drawRects();
     bool quit = false;
 
@@ -117,7 +130,7 @@ int main(int argc, char *args[])
         {
           quit = true;
         }
-        if (e.type == SDL_KEYDOWN)
+        if (e.type == SDL_KEYUP)
         {
           switch (e.key.keysym.sym)
           {
